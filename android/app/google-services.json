@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "850444384500",
+    "firebase_url": "https://ridersandrivers-ef4e9.firebaseio.com",
+    "project_id": "ridersandrivers-ef4e9",
+    "storage_bucket": "ridersandrivers-ef4e9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:850444384500:android:465023e190758e1cfc46a1",
+        "android_client_info": {
+          "package_name": "com.senesy.ridersdrivers_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "850444384500-evte95apkq5oh6c8gphaehk3kcinhek2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAkqy48IGtZOZz51A1YGAR2WRTrEFT7fLs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "850444384500-evte95apkq5oh6c8gphaehk3kcinhek2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

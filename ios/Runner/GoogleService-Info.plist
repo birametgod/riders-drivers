@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>850444384500-2sjndeiekas2ovtf8daul74co39lp5b9.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.850444384500-2sjndeiekas2ovtf8daul74co39lp5b9</string>
+	<key>API_KEY</key>
+	<string>AIzaSyDxQoiAaO4BTEtIK9lMh-14t7z23pcVoAQ</string>
+	<key>GCM_SENDER_ID</key>
+	<string>850444384500</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.senesy.ridersdriversApp</string>
+	<key>PROJECT_ID</key>
+	<string>ridersandrivers-ef4e9</string>
+	<key>STORAGE_BUCKET</key>
+	<string>ridersandrivers-ef4e9.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:850444384500:ios:099b77c96cda41f3fc46a1</string>
+	<key>DATABASE_URL</key>
+	<string>https://ridersandrivers-ef4e9.firebaseio.com</string>
+</dict>
+</plist>

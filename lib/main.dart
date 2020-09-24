@@ -1,4 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:location/location.dart';
+import 'login.dart';
+import 'welcome.dart';
+import 'theme.dart';
+import 'gmap.dart';
+import 'navbar.dart';
+import 'myPage.dart';
 
 void main() {
   runApp(MyApp());
@@ -9,15 +16,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Ride & Drivers Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: Container(
-        color: Colors.white,
-      ),
+      //home: Slider(),
+      //home: LoginPage(),
+      //home: Scaffold(
+        //body: GMap(),
+      //),
+      home: ExtendedNavBar(),
     );
   }
 }
-
-

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ridersdrivers_app/screens/home_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -9,13 +10,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Ride & Drivers Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: Container(
-        color: Colors.white,
-      ),
+      home: HomePage(),
     );
   }
 }

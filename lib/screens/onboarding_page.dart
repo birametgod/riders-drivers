@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ridersdrivers_app/constants.dart';
+import 'package:ridersdrivers_app/widgets/card_info.dart';
 import 'package:ridersdrivers_app/widgets/google_font_bold_one.dart';
 
 class OnBoarding extends StatefulWidget {
@@ -43,17 +44,7 @@ class _OnBoardingState extends State<OnBoarding> {
       body: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.light,
         child: Container(
-          decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                gradientFirst,
-                gradientSecond,
-                gradientThird,
-                gradientFourth,
-                gradientEnd
-              ])),
+          decoration: homeBodyDecoration,
           child: SafeArea(
             bottom: false,
             child: Column(
@@ -87,52 +78,9 @@ class _OnBoardingState extends State<OnBoarding> {
                         });
                       },
                       children: <Widget>[
-                        Padding(
-                          padding: EdgeInsets.all(40.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Center(
-                                child: Image(
-                                  image:
-                                      AssetImage('assets/images/location.png'),
-                                  width: 300.0,
-                                  height: 300.0,
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(40.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Center(
-                                child: Image(
-                                  image: AssetImage('assets/images/finder.png'),
-                                  width: 300.0,
-                                  height: 300.0,
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(40.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Center(
-                                child: Image(
-                                  image: AssetImage('assets/images/city.png'),
-                                  width: 300.0,
-                                  height: 300.0,
-                                ),
-                              )
-                            ],
-                          ),
-                        )
+                        CardInfo(imagePath: 'assets/images/location.png'),
+                        CardInfo(imagePath: 'assets/images/finder.png'),
+                        CardInfo(imagePath: 'assets/images/city.png')
                       ],
                     ),
                   ),

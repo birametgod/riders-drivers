@@ -7,3 +7,15 @@ Color gradientFourth = Color(0xFFF4EEEB);
 Color gradientEnd = Color(0xFFF0F1F5);
 Color facebookColor = Color(0xFF3b5998);
 Color facebookColorLight =  Color(0xFF526898);
+
+BoxDecoration homeBodyDecoration = BoxDecoration(
+    gradient: LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          gradientFirst,
+          gradientSecond,
+          gradientThird,
+          gradientFourth,
+          gradientEnd
+        ]));

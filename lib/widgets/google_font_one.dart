@@ -3,12 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ridersdrivers_app/constants.dart';
 
-class GoogleFontBoldOne extends StatelessWidget {
+class GoogleFontOne extends StatelessWidget {
 
-  const GoogleFontBoldOne({@required this.textValue, @required this.size}) ;
+  const GoogleFontOne({
+    @required this.textValue,
+    @required this.size,
+    this.spacing,
+    this.weight,
+    this.height}) ;
 
   final String textValue;
   final double size;
+  final double spacing;
+  final FontWeight weight;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +26,8 @@ class GoogleFontBoldOne extends StatelessWidget {
         color: gradientEnd,
         fontSize: size,
         fontWeight: FontWeight.bold,
+        letterSpacing: spacing,
+        height: height
       ),
     );
   }

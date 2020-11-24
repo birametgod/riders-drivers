@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
+Color gradientZero = Color(0xFF8A4F19);
 Color gradientFirst = Color(0xFFAA5401);
 Color gradientSecond = Color(0xFFBD702B);
 Color gradientThird = Color(0xFFD1C9C1);
@@ -18,4 +19,5 @@ BoxDecoration homeBodyDecoration = BoxDecoration(
           gradientThird,
           gradientFourth,
           gradientEnd
-        ]));
+        ])
+);

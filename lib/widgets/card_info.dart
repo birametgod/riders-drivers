@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 
 class CardInfo extends StatelessWidget {
 
-  CardInfo({ @required this.imagePath});
+  CardInfo({ @required this.imagePath,@required this.width, @required this.height});
 
   final String imagePath;
+  final double width;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
@@ -16,8 +18,8 @@ class CardInfo extends StatelessWidget {
           Center(
             child: Image(
               image: AssetImage(imagePath),
-              width: 300.0,
-              height: 300.0,
+              width: width,
+              height: height,
             ),
           )
         ],

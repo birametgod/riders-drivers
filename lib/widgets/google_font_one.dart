@@ -25,7 +25,7 @@ class GoogleFontOne extends StatelessWidget {
       style: GoogleFonts.poppins(
         color: gradientEnd,
         fontSize: size,
-        fontWeight: FontWeight.bold,
+        fontWeight: weight,
         letterSpacing: spacing,
         height: height
       ),

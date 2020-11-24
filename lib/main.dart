@@ -1,6 +1,8 @@
+import 'package:country_code_picker/country_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:ridersdrivers_app/screens/home_page.dart';
-import 'package:ridersdrivers_app/screens/onboarding_page.dart';
+import 'package:ridersdrivers_app/screens/connexion_screen.dart';
+import 'package:ridersdrivers_app/screens/geolocation_screen.dart';
+import 'package:ridersdrivers_app/screens/verify_screen_second.dart';
 
 void main() {
   runApp(MyApp());
@@ -16,7 +18,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: OnBoarding(),
+      home: ConnexionScreen(),
     );
   }
 }

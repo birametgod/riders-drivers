@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ridersdrivers_app/widgets/google_font_bold_one.dart';
+import 'package:ridersdrivers_app/widgets/google_font_one.dart';
 
 class TextFittedBox extends StatelessWidget {
 

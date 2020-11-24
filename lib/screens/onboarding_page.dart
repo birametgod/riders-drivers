@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ridersdrivers_app/constants.dart';
 import 'package:ridersdrivers_app/widgets/card_info.dart';
-import 'package:ridersdrivers_app/widgets/google_font_bold_one.dart';
+import 'package:ridersdrivers_app/widgets/google_font_one.dart';
 
 class OnBoarding extends StatefulWidget {
   @override
@@ -78,9 +78,9 @@ class _OnBoardingState extends State<OnBoarding> {
                         });
                       },
                       children: <Widget>[
-                        CardInfo(imagePath: 'assets/images/location.png'),
-                        CardInfo(imagePath: 'assets/images/finder.png'),
-                        CardInfo(imagePath: 'assets/images/city.png')
+                        CardInfo(imagePath: 'assets/images/location.png',width: 300.0, height: 300.0),
+                        CardInfo(imagePath: 'assets/images/finder.png',width: 300.0, height: 300.0),
+                        CardInfo(imagePath: 'assets/images/city.png',width: 300.0, height: 300.0)
                       ],
                     ),
                   ),
@@ -112,7 +112,7 @@ class _OnBoardingState extends State<OnBoarding> {
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[
-                                  GoogleFontBoldOne(size: 20.0, textValue: 'Next'),
+                                  GoogleFontOne(size: 20.0, textValue: 'Next'),
                                   SizedBox(
                                     width: 10.0,
                                   ),
@@ -141,7 +141,7 @@ class _OnBoardingState extends State<OnBoarding> {
                             child: Center(
                               child: Padding(
                                 padding: EdgeInsets.only(bottom: 10.0),
-                                child: GoogleFontBoldOne(
+                                child: GoogleFontOne(
                                     textValue: 'Get started',
                                     size: 30.0)
                               ),

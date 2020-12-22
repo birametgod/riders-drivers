@@ -1,27 +1,222 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter/services.dart' show PlatformException, rootBundle;
+//new line
+import 'dart:async';
+import 'dart:typed_data';
 import 'package:location/location.dart';
-import 'login.dart';
-import 'welcome.dart';
-import 'theme.dart';
-import 'gmap.dart';
-import 'navbar.dart';
-import 'myPage.dart';
+import 'package:google_map_polyline/google_map_polyline.dart';
+//end
 
-void main() {
-  runApp(MyApp());
+void main() => runApp(MyApp());
+
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
 }
 
-class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+class _MyAppState extends State<MyApp> {
+  GoogleMapController _mapController;
+  String mapStyle;
+  final LatLng _center = const LatLng(45.521563, -122.677433);
+
+  //new line
+  StreamSubscription _locationSubscription;
+  Location _locationTracker = Location();
+  Marker marker;
+  Circle circle;
+
+
+  Future<Uint8List> getMarker() async {
+    ByteData byteData = await DefaultAssetBundle.of(context).load("assets/car_icon.png");
+    return byteData.buffer.asUint8List();
+  }
+
+  void updateMarkerAndCircle(LocationData newLocalData, Uint8List imageData) {
+    LatLng latlng = LatLng(newLocalData.latitude, newLocalData.longitude);
+    this.setState(() {
+      marker = Marker(
+          markerId: MarkerId("home"),
+          position: latlng,
+          rotation: newLocalData.heading,
+          draggable: false,
+          zIndex: 2,
+          flat: true,
+          anchor: Offset(0.5, 0.5),
+          icon: BitmapDescriptor.fromBytes(imageData));
+      circle = Circle(
+          circleId: CircleId("car"),
+          radius: newLocalData.accuracy,
+          zIndex: 1,
+          strokeColor: Colors.blue,
+          center: latlng,
+          fillColor: Colors.blue.withAlpha(70));
+    });
+  }
+
+  void getCurrentLocation() async {
+    try {
+
+      Uint8List imageData = await getMarker();
+      var location = await _locationTracker.getLocation();
+
+      updateMarkerAndCircle(location, imageData);
+
+      if (_locationSubscription != null) {
+        _locationSubscription.cancel();
+      }
+
+      _locationSubscription = _locationTracker.onLocationChanged.listen((newLocalData) {
+        if (_mapController != null) {
+          _mapController.animateCamera(CameraUpdate.newCameraPosition(new CameraPosition(
+              bearing: 192.8334901395799,
+              target: LatLng(newLocalData.latitude, newLocalData.longitude),
+              tilt: 0,
+              zoom: 18.00)));
+          updateMarkerAndCircle(newLocalData, imageData);
+        }
+      });
+
+    } on PlatformException catch (e) {
+      if (e.code == 'PERMISSION_DENIED') {
+        debugPrint("Permission Denied");
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    if (_locationSubscription != null) {
+      _locationSubscription.cancel();
+    }
+    super.dispose();
+  }
+
+
+
+  @override
+  void initState() {
+    super.initState();
+    rootBundle.loadString('assets/map_style.txt').then((string) {
+      mapStyle = string;
+    });
+  }
+
+  void _onMapCreated(GoogleMapController controller) {
+    setState(() {
+      _mapController = controller;
+      _mapController.setMapStyle(mapStyle);
+      getCurrentLocation();
+    });
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      //home: Slider(),
-      //home: LoginPage(),
-      //home: Scaffold(
-        //body: GMap(),
-      //),
-      home: ExtendedNavBar(),
+      home: Scaffold(
+        appBar: AppBar(
+          brightness:Brightness.light,
+          leading: IconButton(
+            icon: Icon(Icons.list_outlined, color: Colors.black, size: 32.0,),
+            onPressed: () {
+            },
+          ) ,
+          backgroundColor: Colors.transparent,
+          elevation: 0.0,
+        ),
+        body: Stack(
+          children: [
+            GoogleMap(
+            onMapCreated: _onMapCreated,
+            initialCameraPosition: CameraPosition(
+              target: _center,
+              zoom: 14.0,
+            ),
+            mapType: MapType.normal,
+            markers: Set.of((marker != null) ? [marker] : []),
+            circles: Set.of((circle != null) ? [circle] : []),
+            myLocationEnabled: true,
+            myLocationButtonEnabled: false,
+          ),
+            Positioned(
+              right: 15,
+              left: 15,
+              child: Container(
+                margin: const EdgeInsets.only(top: 40.0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: Color(0xFFefebe9),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.brown,
+                      offset: Offset(10.0, 10.0), //(x,y)
+                      blurRadius: 18.0,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      children: <Widget>[
+                        IconButton(
+                          splashColor: Colors.grey,
+                          icon: Icon(Icons.location_on_outlined),
+                          onPressed: () {},
+                        ),
+                        Expanded(
+                            child: TextField(
+                              cursorColor: Colors.black,
+                              keyboardType: TextInputType.text,
+                              textInputAction: TextInputAction.go,
+                              decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  contentPadding:
+                                  EdgeInsets.symmetric(horizontal: 20),
+                                  hintText: "From"),
+                            )
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: <Widget>[
+                        IconButton(
+                          splashColor: Colors.grey,
+                          icon: Icon(Icons.edit_location),
+                          onPressed: () {},
+                        ),
+                        Expanded(
+                            child: TextField(
+                              cursorColor: Colors.black,
+                              keyboardType: TextInputType.text,
+                              textInputAction: TextInputAction.go,
+                              decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  contentPadding:
+                                  EdgeInsets.symmetric(horizontal: 20),
+                                  hintText: "Where to?"),
+                            )
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ]
+        ),
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.location_searching),
+          onPressed: () {
+            print('start locate');
+            getCurrentLocation();
+          },
+        ),
+      ),
     );
   }
 }
+
+//fix polyline
+//https://stackoverflow.com/questions/53171531/how-to-add-polyline-on-google-maps-flutter-plugin

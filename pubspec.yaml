@@ -31,12 +31,22 @@ dependencies:
   carousel_slider: ^2.2.1
   nice_button: ^0.1.7
   font_awesome_flutter: ^8.0.1
-  google_maps_flutter: ^0.5.30
+  google_maps_flutter:
+  google_map_polyline:
   location: ^3.0.2
-  extended_navbar_scaffold: ^1.0.1
   flutter_vector_icons: ^0.2.1
-  flutter_speed_dial_material_design: ^2.0.0
-  custom_switch_button: ^0.5.0
+  http: ^0.12.2
+  json_serializable: ^3.5.0
+  flutter_sidebar: ^0.3.1
+  permission:
+  uuid:
+  google_place:
+  geolocator:
+  geocoder:
+  flutter_polyline_points:
+
+
+
 
 
 dev_dependencies:
@@ -57,6 +67,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
      - assets/
+     - assets/map_style.txt
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

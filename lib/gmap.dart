@@ -2,7 +2,7 @@ import 'dart:collection';
 import 'package:location/location.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:custom_switch_button/custom_switch_button.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 class GMap extends StatefulWidget {
   GMap({Key key}) : super(key: key);
@@ -18,8 +18,20 @@ class _GMapState extends State<GMap> {
 
   Set<Marker> _markers = HashSet<Marker>();
 
+  String _mapStyle;
+
+  @override
+  void initState() {
+    super.initState();
+    _getLocationPermission();
+    rootBundle.loadString('assets/map_style.txt').then((string) {
+      _mapStyle = string;
+    });
+  }
+
   void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;
+    _mapController.setMapStyle(_mapStyle);
 
     setState(() {
       _markers.add(
@@ -36,11 +48,7 @@ class _GMapState extends State<GMap> {
     });
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _getLocationPermission();
-  }
+
 
   void _getLocationPermission() async {
     var location = new Location();
@@ -64,20 +72,17 @@ class _GMapState extends State<GMap> {
   bool isChecked = false;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-
-      body: Stack(
-        children: <Widget>[
-          GoogleMap(
+    return
+      GoogleMap(
             onMapCreated: _onMapCreated,
             initialCameraPosition: CameraPosition(
               target: LatLng(14.499454, -14.445561),
               zoom: 1,
             ),
             myLocationEnabled: true,
-            myLocationButtonEnabled: false,
-          ),
-          GestureDetector(
+            myLocationButtonEnabled: true,
+          );
+          /* GestureDetector(
             child: Container(
                 margin: EdgeInsets.only(top: 100),
                 child: CustomSwitchButton(backgroundColor: Colors.grey, checked: isChecked, checkedColor: Colors.lightGreen, unCheckedColor: Colors.white,  animationDuration: Duration(milliseconds: 400))),
@@ -88,9 +93,7 @@ class _GMapState extends State<GMap> {
 
               _toggleMapStyle();
             },
-          ),
-        ],
-      ),
-    );
+          ),*/
+
   }
 }

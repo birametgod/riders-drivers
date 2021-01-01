@@ -4,14 +4,12 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
 import 'address_search.dart';
 import 'place_service.dart';
 import 'package:uuid/uuid.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
-import 'secrets.dart';
 import 'package:google_map_polyline/google_map_polyline.dart';
 
 
@@ -53,7 +51,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
 // For storing the current position
   Position _currentPosition;
 
-  Set<Marker> markers = {};
+  List<Marker> markers = <Marker>[];
   Map<MarkerId,Marker> markers1 = {};
   PolylinePoints polylinePoints;
   Map<PolylineId, Polyline> polylines = {};
@@ -137,38 +135,6 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
 
   // Method for calculating the distance between two places
   Future<bool> _calculateDistance() async {
-        // Start Location Marker
-        Marker startMarker = Marker(
-          markerId: MarkerId('$_startPosition'),
-          position: LatLng(
-            _startPosition.latitude,
-            _startPosition.longitude,
-          ),
-          infoWindow: InfoWindow(
-            title: 'Start',
-          ),
-          icon: BitmapDescriptor.defaultMarker,
-        );
-
-        // Destination Location Marker
-        Marker destinationMarker = Marker(
-          markerId: MarkerId('$_destinationPosition'),
-          position: LatLng(
-            _destinationPosition.latitude,
-            _destinationPosition.longitude,
-          ),
-          infoWindow: InfoWindow(
-            title: 'Destination',
-          ),
-          icon: BitmapDescriptor.defaultMarker,
-        );
-
-        // Adding the markers to the list
-        markers.add(startMarker);
-        markers.add(destinationMarker);
-
-        print('START COORDINATES: $_startPosition');
-        print('DESTINATION COORDINATES: $_destinationPosition');
 
         Position _northeastCoordinates;
         Position _southwestCoordinates;
@@ -251,32 +217,6 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
     return 12742 * asin(sqrt(a));
   }
 
-  // Create the polylines for showing the route between two places
-  _createPolylines(Position start, Position destination) async {
-    polylinePoints = PolylinePoints();
-    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
-      Secrets.API_KEY, // Google Maps API Key
-      PointLatLng(start.latitude, start.longitude),
-      PointLatLng(destination.latitude, destination.longitude),
-      travelMode: TravelMode.transit,
-    );
-
-    if (result.points.isNotEmpty) {
-      result.points.forEach((PointLatLng point) {
-        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
-      });
-    }
-
-    PolylineId id = PolylineId('poly');
-    Polyline polyline = Polyline(
-      polylineId: id,
-      color: Colors.red,
-      points: polylineCoordinates,
-      width: 3,
-    );
-    polylines[id] = polyline;
-  }
-
 
   //add polyline
   _getPolylinesWithAddress() async {
@@ -301,20 +241,14 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
       ),
       icon: BitmapDescriptor.fromBytes(imageData),);
     Marker endMarker = Marker(
-      markerId: MarkerId('$_startPosition'),
-      position:_startPosition,
+      markerId: MarkerId('$_destinationPosition'),
+      position:_destinationPosition,
       infoWindow: InfoWindow(
         title: 'Destination',
       ),
       icon: BitmapDescriptor.fromBytes(imageData),);
 
-    // Adding the markers to the list
-    markers.add(startMarker);
-    markers.add(endMarker);
-    MarkerId markerId1 = MarkerId("1");
-    MarkerId markerId2 = MarkerId("2");
-    markers1[markerId1]=endMarker;
-    markers1[markerId2]=startMarker;
+
 
 
     List<LatLng> _coordinates =
@@ -332,9 +266,27 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
           )
       ));
       _polylines.clear();
+      markers.add(startMarker);
+      markers.add(endMarker);
     });
     _addPolyline(_coordinates);
     _setLoadingMenu(false);
+    double totalDistance = 0.0;
+    double price = 0.0;
+    for (int i = 0; i < _coordinates.length - 1; i++) {
+      totalDistance += _coordinateDistance(
+        _coordinates[i].latitude,
+        _coordinates[i].longitude,
+        _coordinates[i + 1].latitude,
+        _coordinates[i + 1].longitude
+      );
+    }
+    setState(() {
+      _placeDistance = totalDistance.toStringAsFixed(2);
+      print('DISTANCE: $_placeDistance km');
+      price = totalDistance * 1500;
+      print('PRICE: $price XOF');
+    });
   }
 
   _addPolyline(List<LatLng> _coordinates) {
@@ -365,8 +317,6 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   }
 
 
-
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -384,7 +334,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
           children: [
             GoogleMap(
               onMapCreated: _onMapCreated,
-              markers: Set.of(markers1.values),
+              markers: Set<Marker>.of(markers),
               polylines: Set<Polyline>.of(_polylines.values),
               initialCameraPosition: _initialPosition,
               zoomGesturesEnabled: true,

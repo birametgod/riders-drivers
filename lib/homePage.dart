@@ -132,81 +132,6 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
     });
   }
 
-
-  // Method for calculating the distance between two places
-  Future<bool> _calculateDistance() async {
-
-        Position _northeastCoordinates;
-        Position _southwestCoordinates;
-
-        // Calculating to check that the position relative
-        // to the frame, and pan & zoom the camera accordingly.
-        double miny = (_startPosition.latitude <= _destinationPosition.latitude)
-            ? _startPosition.latitude
-            : _destinationPosition.latitude;
-        double minx = (_startPosition.longitude <= _destinationPosition.longitude)
-            ? _startPosition.longitude
-            : _destinationPosition.longitude;
-        double maxy = (_startPosition.latitude <= _destinationPosition.latitude)
-            ? _destinationPosition.latitude
-            : _startPosition.latitude;
-        double maxx = (_startPosition.longitude <= _destinationPosition.longitude)
-            ? _destinationPosition.longitude
-            : _startPosition.longitude;
-
-        _southwestCoordinates = Position(latitude: miny, longitude: minx);
-        _northeastCoordinates = Position(latitude: maxy, longitude: maxx);
-
-        // Accommodate the two locations within the
-        // camera view of the map
-        _mapController.animateCamera(
-          CameraUpdate.newLatLngBounds(
-            LatLngBounds(
-              northeast: LatLng(
-                _northeastCoordinates.latitude,
-                _northeastCoordinates.longitude,
-              ),
-              southwest: LatLng(
-                _southwestCoordinates.latitude,
-                _southwestCoordinates.longitude,
-              ),
-            ),
-            100.0,
-          ),
-        );
-
-        // Calculating the distance between the start and the end positions
-        // with a straight path, without considering any route
-        // double distanceInMeters = await Geolocator().bearingBetween(
-        //   startCoordinates.latitude,
-        //   startCoordinates.longitude,
-        //   destinationCoordinates.latitude,
-        //   destinationCoordinates.longitude,
-        // );
-
-
-        double totalDistance = 0.0;
-
-        // Calculating the total distance by adding the distance
-        // between small segments
-        for (int i = 0; i < polylineCoordinates.length - 1; i++) {
-          totalDistance += _coordinateDistance(
-            polylineCoordinates[i].latitude,
-            polylineCoordinates[i].longitude,
-            polylineCoordinates[i + 1].latitude,
-            polylineCoordinates[i + 1].longitude,
-          );
-        }
-
-        setState(() {
-          _placeDistance = totalDistance.toStringAsFixed(2);
-          print('DISTANCE: $_placeDistance km');
-        });
-
-        return true;
-      }
-
-
   // Formula for calculating distance between two coordinates
   double _coordinateDistance(lat1, lon1, lat2, lon2) {
     var p = 0.017453292519943295;
@@ -257,6 +182,11 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
         destination: _whereController.text,
         mode: RouteMode.driving);
 
+    Uint8List imageD = await getMarker();
+    final List<LatLng> driverLocations = [
+      LatLng(45.778964, 4.88205),
+      LatLng(45.778752, 4.881267),
+    ];
 
     setState(() {
       _mapController.animateCamera(CameraUpdate.newCameraPosition(
@@ -268,6 +198,15 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
       _polylines.clear();
       markers.add(startMarker);
       markers.add(endMarker);
+      for (LatLng markerLocation in driverLocations) {
+        markers.add(
+          Marker(
+            markerId: MarkerId(driverLocations.indexOf(markerLocation).toString()),
+            position: markerLocation,
+            icon: BitmapDescriptor.fromBytes(imageD),
+          ),
+        );
+      }
     });
     _addPolyline(_coordinates);
     _setLoadingMenu(false);
@@ -313,6 +252,11 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
 
   Future<Uint8List> getMarker1() async {
     ByteData byteData = await DefaultAssetBundle.of(context).load("assets/person.png");
+    return byteData.buffer.asUint8List();
+  }
+
+  Future<Uint8List> getMarker() async {
+    ByteData byteData = await DefaultAssetBundle.of(context).load("assets/car_icon.png");
     return byteData.buffer.asUint8List();
   }
 

@@ -11,6 +11,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_map_polyline/google_map_polyline.dart';
+import 'package:selectable_container/selectable_container.dart';
 
 
 
@@ -76,7 +77,8 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   ];
 
   bool _loading = false;
-
+  bool _select1 = false;
+  bool _select2 = false;
 
 
   @override
@@ -402,6 +404,107 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                     )
                   ],
                 ),
+              ),
+            ),
+            Positioned(
+              bottom: 150,
+              right: 50,
+              child: SelectableContainer(
+                selectedBorderColor: Colors.teal.shade700,
+                selectedBackgroundColor: Colors.grey.shade100,
+                unselectedBorderColor: Colors.teal.shade600,
+                unselectedBackgroundColor: Colors.grey.shade200,
+                iconAlignment: Alignment.topLeft,
+                icon: Icons.thumb_up,
+                iconSize: 24,
+                unselectedOpacity: 0.5,
+                child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: Color(0xFFefebe9),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.brown,
+                          offset: Offset(10.0, 10.0), //(x,y)
+                          blurRadius: 18.0,
+                        ),
+                      ],
+                    ),
+                    height: 120.0,
+                    width: 120.0,
+                    child: Center(child: Column(
+                      children: [
+                        Image.asset('assets/business.png'),
+                        Text('Business'),
+                      ],
+                    )),
+                  ),
+                onPressed: () {
+                  setState(() {
+                    _select2 = !_select2;
+                  });
+                },
+                selected: _select2,
+              ),
+            ),
+            Positioned(
+              bottom: 150,
+              left: 50,
+              child: SelectableContainer(
+                  unselectedOpacity:1,
+                  unselectedBackgroundColor: Colors.transparent,
+                  selectedBackgroundColor: Colors.transparent,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Color(0xFFefebe9),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.brown,
+                          offset: Offset(10.0, 10.0), //(x,y)
+                          blurRadius: 18.0,
+                        ),
+                      ],
+                    ),
+                    height: 120.0,
+                    width: 120.0,
+                    child: Center(child: Column(
+                      children: [
+                        Image.asset('assets/taxi.png'),
+                        Text('Taxis'),
+                      ],
+                    ))
+                ),
+                onPressed: () {
+                  setState(() {
+                    _select1 = !_select1;
+                  });
+                },
+                selected: _select1,
+              ),
+            ),
+            Positioned(
+              bottom: 80,
+              right: 50,
+              left: 50,
+              child: Container(
+                height: 40.0,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.brown,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0xFFefebe9),
+                      offset: Offset(10.0, 10.0), //(x,y)
+                      blurRadius: 18.0,
+                    ),
+                  ],
+                ),
+                child: Center(child: Text('Request a ride',style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold
+                ),)),
               ),
             ),
           ],

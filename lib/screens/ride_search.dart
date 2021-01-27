@@ -4,8 +4,9 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'address_search.dart';
-import 'place_service.dart';
+import 'package:ridersdrivers_app/secrets.dart';
+import '../components/address_search.dart';
+import '../place_service.dart';
 import 'package:uuid/uuid.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoder/geocoder.dart';
@@ -13,22 +14,12 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_map_polyline/google_map_polyline.dart';
 import 'package:selectable_container/selectable_container.dart';
 
-
-
-void main() {
-
-  runApp(MaterialApp(
-    home: MyApp(),
-  ));
-}
-
-class MyApp extends StatefulWidget {
+class RideSearch extends StatefulWidget {
   @override
-  _MyAppState createState() => _MyAppState();
+  _RideSearchState createState() => _RideSearchState();
 }
 
-class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
-
+class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateMixin {
   GoogleMapController _mapController;
   String mapStyle;
   CameraPosition _initialPosition = CameraPosition(target: LatLng(0.0,0.0));
@@ -38,8 +29,9 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   LatLng _startPosition;
   LatLng _destinationPosition;
   String _placeDistance;
+  String _price;
 
-  final List<_PositionItem> _positionItems = <_PositionItem>[];
+  final List<PositionItem> _positionItems = <PositionItem>[];
 
   var _position = '';
   var lat;
@@ -62,7 +54,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   Map<PolylineId, Polyline> _polylines = <PolylineId, Polyline>{};
 
   GoogleMapPolyline _googleMapPolyline =
-  new GoogleMapPolyline(apiKey: "AIzaSyDlOmH7aZKuQ2Aj9t4Rku9a1HA5tOeySIY");
+  new GoogleMapPolyline(apiKey: Secrets.API_KEY);
   List<List<PatternItem>> patterns = <List<PatternItem>>[
     <PatternItem>[], //line
     <PatternItem>[PatternItem.dash(30.0), PatternItem.gap(20.0)], //dash
@@ -123,10 +115,10 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
         print('CURRENT POS: $_currentPosition');
 
         _mapController.animateCamera(CameraUpdate.newCameraPosition(
-          CameraPosition(
-              target: LatLng(_currentPosition.latitude,_currentPosition.longitude),
-              zoom: 18.0
-          )
+            CameraPosition(
+                target: LatLng(_currentPosition.latitude,_currentPosition.longitude),
+                zoom: 18.0
+            )
         ));
       });
     }).catchError((e) {
@@ -193,7 +185,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
     setState(() {
       _mapController.animateCamera(CameraUpdate.newCameraPosition(
           CameraPosition(
-              target: LatLng(_currentPosition.latitude,_currentPosition.longitude),
+              target: LatLng(_startPosition.latitude,_startPosition.longitude),
               zoom: 18.0
           )
       ));
@@ -216,16 +208,17 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
     double price = 0.0;
     for (int i = 0; i < _coordinates.length - 1; i++) {
       totalDistance += _coordinateDistance(
-        _coordinates[i].latitude,
-        _coordinates[i].longitude,
-        _coordinates[i + 1].latitude,
-        _coordinates[i + 1].longitude
+          _coordinates[i].latitude,
+          _coordinates[i].longitude,
+          _coordinates[i + 1].latitude,
+          _coordinates[i + 1].longitude
       );
     }
     setState(() {
       _placeDistance = totalDistance.toStringAsFixed(2);
       print('DISTANCE: $_placeDistance km');
-      price = totalDistance * 1500;
+      price = totalDistance * 1000;
+      _price = price.toStringAsFixed(2);
       print('PRICE: $price XOF');
     });
   }
@@ -260,6 +253,136 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   Future<Uint8List> getMarker() async {
     ByteData byteData = await DefaultAssetBundle.of(context).load("assets/car_icon.png");
     return byteData.buffer.asUint8List();
+  }
+
+  // Default value for toggle
+  bool toggle = true;
+  void _toggle() {
+    setState(() {
+      toggle = !toggle;
+    });
+  }
+
+  _getToggleChild() {
+    if (toggle) {
+      return Column(
+        children: [
+          CircularProgressIndicator(
+            backgroundColor: Colors.brown,
+            valueColor: new AlwaysStoppedAnimation<Color>(Colors.black),
+          ),
+          Text('Merci de patienter...', style: TextStyle(fontWeight: FontWeight.bold),)
+        ],
+      );
+    } else {
+      return Text('Toggle TWO');
+    }
+  }
+
+  void displayBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+        context: context,
+        builder: (ctx) {
+          return Container(
+            height: MediaQuery.of(context).size.height  * 0.4,
+            child: Column(
+              children: [
+                SizedBox(height: 30.0,),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.brown),
+                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.brown,
+                            offset: Offset(2.0, 3.0), //(x,y)
+                            blurRadius: 6.0,
+                          ),
+                        ],
+                      ),
+                      //margin: const EdgeInsets.all(30.0),
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        children: [
+                          Text('DISTANCE', style: TextStyle(fontWeight: FontWeight.bold),),
+                          Text('$_placeDistance KM')
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: 70.0,),
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.brown),
+                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.brown,
+                            offset: Offset(2.0, 3.0), //(x,y)
+                            blurRadius: 6.0,
+                          ),
+                        ],
+                      ),
+                      //margin: const EdgeInsets.all(30.0),
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        children: [
+                          Text('PRICE', style: TextStyle(fontWeight: FontWeight.bold),),
+                          Text('$_price FCFA')
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 30.0,),
+                _getToggleChild(),
+                //TO-DO: change above with driver's information
+                SizedBox(height: 50.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      child: Text('PAYER'),
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.brown,
+                        onPrimary: Colors.white,
+                        elevation: 4.0,
+                        padding: EdgeInsets.all(15),
+                        side: BorderSide(style: BorderStyle.solid, width: 4.0, color: Colors.white),
+                        textStyle: TextStyle(
+                            fontSize: 20,
+                            fontStyle: FontStyle.normal
+                        ),
+                      ),
+                      onPressed: () {},
+                    ),
+                    SizedBox(width: 70.0,),
+                    ElevatedButton(
+                      child: Text('Annuler'),
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.brown,
+                        onPrimary: Colors.white,
+                        elevation: 4.0,
+                        padding: EdgeInsets.all(15),
+                        side: BorderSide(style: BorderStyle.solid, width: 4.0, color: Colors.white),
+                        textStyle: TextStyle(
+                            fontSize: 20,
+                            fontStyle: FontStyle.normal
+                        ),
+                      ),
+                      onPressed: () {
+                      },
+                    ),
+                  ],
+                )
+              ],
+            ),
+          );
+        });
   }
 
 
@@ -309,35 +432,35 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                     Row(
                       children: <Widget>[
                         IconButton(
-                            splashColor: Colors.grey,
-                            icon: Container(
-                              decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.transparent,
-                                  boxShadow: [BoxShadow(
-                                      color: Color.fromARGB(130, 237, 125, 58),
-                                      blurRadius: _animation.value,
-                                      spreadRadius: _animation.value
-                                  )]
-                              ),
-                              child: Icon(Icons.my_location),
+                          splashColor: Colors.grey,
+                          icon: Container(
+                            decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.transparent,
+                                boxShadow: [BoxShadow(
+                                    color: Color.fromARGB(130, 237, 125, 58),
+                                    blurRadius: _animation.value,
+                                    spreadRadius: _animation.value
+                                )]
                             ),
-                            onPressed: () async {
-                              await Geolocator.getCurrentPosition().then((Position position) => {
-                                _positionItems.add(_PositionItem(
-                                    _PositionItemType.position, _position.toString())),
-                                _position = position.toString(),
-                                lat = position.latitude,
-                                lng = position.longitude
-                              });
-                              var addresses = await Geocoder.local.findAddressesFromCoordinates(new Coordinates(lat, lng));
-                              var first = addresses.first;
-                              setState(() {
-                                _fromController.text = first.addressLine;
-                                _animationController.stop();
-                              });
-                            },
+                            child: Icon(Icons.my_location),
                           ),
+                          onPressed: () async {
+                            await Geolocator.getCurrentPosition().then((Position position) => {
+                              _positionItems.add(PositionItem(
+                                  PositionItemType.position, _position.toString())),
+                              _position = position.toString(),
+                              lat = position.latitude,
+                              lng = position.longitude
+                            });
+                            var addresses = await Geocoder.local.findAddressesFromCoordinates(new Coordinates(lat, lng));
+                            var first = addresses.first;
+                            setState(() {
+                              _fromController.text = first.addressLine;
+                              _animationController.stop();
+                            });
+                          },
+                        ),
                         Expanded(
                             child: TextField(
                               controller: _fromController,
@@ -410,35 +533,32 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
               bottom: 150,
               right: 50,
               child: SelectableContainer(
-                selectedBorderColor: Colors.teal.shade700,
-                selectedBackgroundColor: Colors.grey.shade100,
-                unselectedBorderColor: Colors.teal.shade600,
-                unselectedBackgroundColor: Colors.grey.shade200,
-                iconAlignment: Alignment.topLeft,
+                unselectedOpacity:1,
+                unselectedBackgroundColor: Colors.transparent,
+                selectedBackgroundColor: Colors.transparent,
                 icon: Icons.thumb_up,
                 iconSize: 24,
-                unselectedOpacity: 0.5,
                 child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      color: Color(0xFFefebe9),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.brown,
-                          offset: Offset(10.0, 10.0), //(x,y)
-                          blurRadius: 18.0,
-                        ),
-                      ],
-                    ),
-                    height: 120.0,
-                    width: 120.0,
-                    child: Center(child: Column(
-                      children: [
-                        Image.asset('assets/business.png'),
-                        Text('Business'),
-                      ],
-                    )),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Color(0xFFefebe9),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.brown,
+                        offset: Offset(10.0, 10.0), //(x,y)
+                        blurRadius: 18.0,
+                      ),
+                    ],
                   ),
+                  height: 120.0,
+                  width: 120.0,
+                  child: Center(child: Column(
+                    children: [
+                      Image.asset('assets/business.png'),
+                      Text('Business'),
+                    ],
+                  )),
+                ),
                 onPressed: () {
                   setState(() {
                     _select2 = !_select2;
@@ -451,10 +571,12 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
               bottom: 150,
               left: 50,
               child: SelectableContainer(
-                  unselectedOpacity:1,
-                  unselectedBackgroundColor: Colors.transparent,
-                  selectedBackgroundColor: Colors.transparent,
-                  child: Container(
+                unselectedOpacity:1,
+                unselectedBackgroundColor: Colors.transparent,
+                selectedBackgroundColor: Colors.transparent,
+                icon: Icons.thumb_up,
+                iconSize: 24,
+                child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                       color: Color(0xFFefebe9),
@@ -487,24 +609,21 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
               bottom: 80,
               right: 50,
               left: 50,
-              child: Container(
-                height: 40.0,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: Colors.brown,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Color(0xFFefebe9),
-                      offset: Offset(10.0, 10.0), //(x,y)
-                      blurRadius: 18.0,
-                    ),
-                  ],
+              child: ElevatedButton(
+                child: Text('request a ride'),
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.brown,
+                  onPrimary: Colors.white,
+                  elevation: 2.0,
+                  side: BorderSide(style: BorderStyle.solid, width: 4.0, color: Colors.white),
+                  textStyle: TextStyle(
+                      fontSize: 20,
+                      fontStyle: FontStyle.normal
+                  ),
                 ),
-                child: Center(child: Text('Request a ride',style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold
-                ),)),
+                onPressed: () {
+                  displayBottomSheet(context);
+                },
               ),
             ),
           ],
@@ -514,19 +633,5 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   }
 }
 
-
-enum _PositionItemType {
-  permission,
-  position,
-}
-
-class _PositionItem {
-  _PositionItem(this.type, this.displayValue);
-
-  final _PositionItemType type;
-  final String displayValue;
-}
-
-//https://medium.com/flutter-community/flutter-creating-a-route-calculator-using-google-maps-71699dd96fb9
-//https://github.com/sbis04/flutter_maps/tree/master/lib
-
+//https://www.google.com/search?q=taxi+driver+homepage+flutter&client=firefox-b-d&sxsrf=ALeKk02SBadtIBn35btvSLGIV2eIYHMXMQ:1611175691954&source=lnms&tbm=isch&sa=X&ved=2ahUKEwjGgaiWsavuAhXJ3oUKHeczDnEQ_AUoAXoECAUQAw&biw=1280&bih=703#imgrc=cMcjclmdFGQfTM
+//https://code.market/product/flutter-taxi-app-driver-ui-kit/

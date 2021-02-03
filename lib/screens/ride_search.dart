@@ -29,8 +29,8 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
   final _whereController = TextEditingController();
   LatLng _startPosition;
   LatLng _destinationPosition;
-  String _placeDistance;
-  String _price;
+  String _placeDistance = '0';
+  String _price = '0';
 
   final List<PositionItem> _positionItems = <PositionItem>[];
 
@@ -75,6 +75,7 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
 
   final firestoreInstance = FirebaseFirestore.instance;
   String ride_id;
+  String  ride_type;
 
   void _onPressed() {
     firestoreInstance.collection("ride").add(
@@ -85,15 +86,13 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
             "latitude" : _destinationPosition.latitude,
             "longitude" : _destinationPosition.longitude
           },
-          "end_time" : null,
-          "id_driver" : "",
-          "id_rider" : "",
           "price" : _price,
           "start_point" : {
             "latitude" : _startPosition.latitude,
             "longitude" : _startPosition.longitude
           },
-          "start_time" : null,
+          "distance" : _placeDistance,
+          "ride_type" : ride_type,
         }).then((value){
           ride_id = value.id;
       print(value.id);
@@ -300,6 +299,50 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
 
   _getToggleChild() {
     if (toggle) {
+      return Container(
+        margin: EdgeInsets.fromLTRB(15, 0, 15, 0),
+        height: 100,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: Colors.orangeAccent,
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 60,
+              height: 60,
+              margin: EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                image: DecorationImage(
+                    image: NetworkImage('https://googleflutter.com/sample_image.jpg'),
+                    fit: BoxFit.fill
+                ),
+              ),
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text('Surnom', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
+                SizedBox(height: 5),
+                Text('Level', style: TextStyle(fontSize: 15),)
+              ],
+            ),
+            SizedBox(width: 50,),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text('Peugeot 3008', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
+                SizedBox(height: 5),
+                Text('DK-262-SD', style: TextStyle(fontSize: 15),)
+              ],
+            ),
+          ],
+        ),
+      );
+    } else {
       return Column(
         children: [
           CircularProgressIndicator(
@@ -309,8 +352,6 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
           Text('Merci de patienter...', style: TextStyle(fontWeight: FontWeight.bold),)
         ],
       );
-    } else {
-      return Text('Toggle TWO');
     }
   }
 
@@ -327,6 +368,7 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
+                      width: 150,
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.brown),
                         borderRadius: BorderRadius.circular(20),
@@ -348,8 +390,9 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
                         ],
                       ),
                     ),
-                    SizedBox(width: 70.0,),
+                    SizedBox(width: 50.0,),
                     Container(
+                      width: 150,
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.brown),
                         borderRadius: BorderRadius.circular(20),
@@ -376,7 +419,7 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
                 SizedBox(height: 30.0,),
                 _getToggleChild(),
                 //TO-DO: change above with driver's information
-                SizedBox(height: 50.0),
+                SizedBox(height: 30.0),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -598,6 +641,8 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
                 onPressed: () {
                   setState(() {
                     _select2 = !_select2;
+                    _select1 = false;
+                    ride_type = "business";
                   });
                 },
                 selected: _select2,
@@ -636,6 +681,8 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
                 onPressed: () {
                   setState(() {
                     _select1 = !_select1;
+                    _select2 = false;
+                    ride_type = "taxis";
                   });
                 },
                 selected: _select1,
@@ -659,7 +706,7 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
                 ),
                 onPressed: () {
                   displayBottomSheet(context);
-                  _onPressed();
+                  //_onPressed();
                 },
               ),
             ),

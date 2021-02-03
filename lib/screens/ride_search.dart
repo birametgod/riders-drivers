@@ -13,6 +13,7 @@ import 'package:geocoder/geocoder.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_map_polyline/google_map_polyline.dart';
 import 'package:selectable_container/selectable_container.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RideSearch extends StatefulWidget {
   @override
@@ -71,6 +72,40 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
   bool _loading = false;
   bool _select1 = false;
   bool _select2 = false;
+
+  final firestoreInstance = FirebaseFirestore.instance;
+  String ride_id;
+
+  void _onPressed() {
+    firestoreInstance.collection("ride").add(
+        {
+          "address_end_point" : _whereController.text,
+          "address_start_point" : _fromController.text,
+          "end_point" : {
+            "latitude" : _destinationPosition.latitude,
+            "longitude" : _destinationPosition.longitude
+          },
+          "end_time" : null,
+          "id_driver" : "",
+          "id_rider" : "",
+          "price" : _price,
+          "start_point" : {
+            "latitude" : _startPosition.latitude,
+            "longitude" : _startPosition.longitude
+          },
+          "start_time" : null,
+        }).then((value){
+          ride_id = value.id;
+      print(value.id);
+    });
+  }
+  void _deleteRide() {
+    firestoreInstance.collection("ride").doc(ride_id).delete().then((_) {
+      print("success!");
+      Navigator.pop(context);
+    });
+  }
+
 
 
   @override
@@ -375,6 +410,7 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
                         ),
                       ),
                       onPressed: () {
+                        _deleteRide();
                       },
                     ),
                   ],
@@ -623,6 +659,7 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
                 ),
                 onPressed: () {
                   displayBottomSheet(context);
+                  _onPressed();
                 },
               ),
             ),

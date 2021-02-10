@@ -76,9 +76,10 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
   final firestoreInstance = FirebaseFirestore.instance;
   String ride_id;
   String  ride_type;
-
+  String statut;
+  final ride = FirebaseFirestore.instance.collection('ride');
   void _onPressed() {
-    firestoreInstance.collection("ride").add(
+    ride.add(
         {
           "address_end_point" : _whereController.text,
           "address_start_point" : _fromController.text,
@@ -93,9 +94,12 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
           },
           "distance" : _placeDistance,
           "ride_type" : ride_type,
+          "statut" : "in process",
+          "rider" : "id_rider"
         }).then((value){
           ride_id = value.id;
       print(value.id);
+      _getResponse();
     });
   }
   void _deleteRide() {
@@ -105,6 +109,20 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
     });
   }
 
+  //listen to ride filter by id_rider if driver accept (statut = accept) fetch driver information  by id_driver
+  void _getResponse() {
+    //listen to the ride with idRider and statut in process if state change
+    firestoreInstance.collection('ride').doc(ride_id).get().then((data){
+      print(data['statut']);
+    });
+    //accept
+    //cancel
+  }
+
+  //update ride statut to paid
+  void _payement() {
+
+  }
 
 
   @override
@@ -299,6 +317,16 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
 
   _getToggleChild() {
     if (toggle) {
+      return Column(
+        children: [
+          CircularProgressIndicator(
+            backgroundColor: Colors.brown,
+            valueColor: new AlwaysStoppedAnimation<Color>(Colors.black),
+          ),
+          Text('Merci de patienter...', style: TextStyle(fontWeight: FontWeight.bold),)
+        ],
+      );
+    } else {
       return Container(
         margin: EdgeInsets.fromLTRB(15, 0, 15, 0),
         height: 100,
@@ -341,16 +369,6 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
             ),
           ],
         ),
-      );
-    } else {
-      return Column(
-        children: [
-          CircularProgressIndicator(
-            backgroundColor: Colors.brown,
-            valueColor: new AlwaysStoppedAnimation<Color>(Colors.black),
-          ),
-          Text('Merci de patienter...', style: TextStyle(fontWeight: FontWeight.bold),)
-        ],
       );
     }
   }
@@ -706,7 +724,7 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
                 ),
                 onPressed: () {
                   displayBottomSheet(context);
-                  //_onPressed();
+                  _onPressed();
                 },
               ),
             ),

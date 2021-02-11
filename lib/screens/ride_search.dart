@@ -108,12 +108,21 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
       Navigator.pop(context);
     });
   }
-
+  String driver;
   //listen to ride filter by id_rider if driver accept (statut = accept) fetch driver information  by id_driver
   void _getResponse() {
     //listen to the ride with idRider and statut in process if state change
-    firestoreInstance.collection('ride').doc(ride_id).get().then((data){
-      print(data['statut']);
+    firestoreInstance.collection('ride').doc(ride_id).get().then((DocumentSnapshot document){
+      print(document.data()['statut']);
+      if(document.data()['statut'] == 'accept'){
+        firestoreInstance.collection('driver').doc(document.data()['driverId']).get().then((data) => {
+          //assign driver information to needed variable
+          driver = data['name'],
+        });
+        print(driver);
+        _toggle();
+
+      }
     });
     //accept
     //cancel
@@ -121,8 +130,14 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
 
   //update ride statut to paid
   void _payement() {
-
+    //payment api
+    //navigate to new page with driver itinery
+    firestoreInstance.collection("ride").doc(ride_id).update({
+      "statut" : "paid",
+    }).then((value) => print("User Updated"));
   }
+
+  //add current location in collection rider
 
 
   @override
@@ -352,7 +367,7 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text('Surnom', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
+                Text(driver, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
                 SizedBox(height: 5),
                 Text('Level', style: TextStyle(fontSize: 15),)
               ],
@@ -454,7 +469,9 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
                             fontStyle: FontStyle.normal
                         ),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        _payement();
+                      },
                     ),
                     SizedBox(width: 70.0,),
                     ElevatedButton(

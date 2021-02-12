@@ -95,11 +95,11 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
           "distance" : _placeDistance,
           "ride_type" : ride_type,
           "statut" : "in process",
-          "rider" : "id_rider"
+          "rider" : "id_rider",
+          "diverId" : ""
         }).then((value){
           ride_id = value.id;
       print(value.id);
-      _getResponse();
     });
   }
   void _deleteRide() {
@@ -110,18 +110,16 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
   }
   String driver;
   //listen to ride filter by id_rider if driver accept (statut = accept) fetch driver information  by id_driver
-  void _getResponse() {
+  void _getResponse(BuildContext context) {
     //listen to the ride with idRider and statut in process if state change
     firestoreInstance.collection('ride').doc(ride_id).get().then((DocumentSnapshot document){
       print(document.data()['statut']);
       if(document.data()['statut'] == 'accept'){
+        //_toggle();
         firestoreInstance.collection('driver').doc(document.data()['driverId']).get().then((data) => {
           //assign driver information to needed variable
-          driver = data['name'],
+          driver = data['username'],
         });
-        print(driver);
-        _toggle();
-
       }
     });
     //accept
@@ -323,70 +321,128 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
   }
 
   // Default value for toggle
-  bool toggle = true;
-  void _toggle() {
-    setState(() {
-      toggle = !toggle;
-    });
+  bool toggle = false;
+
+  Widget waiting(){
+    return Column(
+      children: [
+        CircularProgressIndicator(
+          backgroundColor: Colors.brown,
+          valueColor: new AlwaysStoppedAnimation<Color>(Colors.black),
+        ),
+        Text('Merci de patienter...', style: TextStyle(fontWeight: FontWeight.bold),)
+      ],
+    );
+  }
+
+  Widget driverInfo(){
+    return Container(
+      margin: EdgeInsets.fromLTRB(15, 0, 15, 0),
+      height: 100,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: Colors.orangeAccent,
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 60,
+            height: 60,
+            margin: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              image: DecorationImage(
+                  image: NetworkImage('https://googleflutter.com/sample_image.jpg'),
+                  fit: BoxFit.fill
+              ),
+            ),
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text('driver', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
+              SizedBox(height: 5),
+              Text('Level', style: TextStyle(fontSize: 15),)
+            ],
+          ),
+          SizedBox(width: 50,),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text('Peugeot 3008', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
+              SizedBox(height: 5),
+              Text('DK-262-SD', style: TextStyle(fontSize: 15),)
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   _getToggleChild() {
-    if (toggle) {
-      return Column(
-        children: [
-          CircularProgressIndicator(
-            backgroundColor: Colors.brown,
-            valueColor: new AlwaysStoppedAnimation<Color>(Colors.black),
-          ),
-          Text('Merci de patienter...', style: TextStyle(fontWeight: FontWeight.bold),)
-        ],
-      );
-    } else {
-      return Container(
-        margin: EdgeInsets.fromLTRB(15, 0, 15, 0),
-        height: 100,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          color: Colors.orangeAccent,
-        ),
-        child: Row(
+    setState(() {
+      if (toggle) {
+        return Column(
           children: [
-            Container(
-              width: 60,
-              height: 60,
-              margin: EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                image: DecorationImage(
-                    image: NetworkImage('https://googleflutter.com/sample_image.jpg'),
-                    fit: BoxFit.fill
+            CircularProgressIndicator(
+              backgroundColor: Colors.brown,
+              valueColor: new AlwaysStoppedAnimation<Color>(Colors.black),
+            ),
+            Text('Merci de patienter...', style: TextStyle(fontWeight: FontWeight.bold),)
+          ],
+        );
+      } else {
+        return Container(
+          margin: EdgeInsets.fromLTRB(15, 0, 15, 0),
+          height: 100,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: Colors.orangeAccent,
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 60,
+                height: 60,
+                margin: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: DecorationImage(
+                      image: NetworkImage('https://googleflutter.com/sample_image.jpg'),
+                      fit: BoxFit.fill
+                  ),
                 ),
               ),
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(driver, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
-                SizedBox(height: 5),
-                Text('Level', style: TextStyle(fontSize: 15),)
-              ],
-            ),
-            SizedBox(width: 50,),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text('Peugeot 3008', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
-                SizedBox(height: 5),
-                Text('DK-262-SD', style: TextStyle(fontSize: 15),)
-              ],
-            ),
-          ],
-        ),
-      );
-    }
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(driver, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
+                  SizedBox(height: 5),
+                  Text('Level', style: TextStyle(fontSize: 15),)
+                ],
+              ),
+              SizedBox(width: 50,),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text('Peugeot 3008', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
+                  SizedBox(height: 5),
+                  Text('DK-262-SD', style: TextStyle(fontSize: 15),)
+                ],
+              ),
+            ],
+          ),
+        );
+      }
+    });
+
   }
+
+
 
   void displayBottomSheet(BuildContext context) {
     showModalBottomSheet(
@@ -450,7 +506,7 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
                   ],
                 ),
                 SizedBox(height: 30.0,),
-                _getToggleChild(),
+                Container(child: toggle ? driverInfo() : waiting()),
                 //TO-DO: change above with driver's information
                 SizedBox(height: 30.0),
                 Row(
@@ -470,7 +526,14 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
                         ),
                       ),
                       onPressed: () {
-                        _payement();
+                        setState(() {
+                          if (toggle) {
+                            toggle = false;
+                          } else {
+                            toggle = true;
+                          }
+                        });
+
                       },
                     ),
                     SizedBox(width: 70.0,),

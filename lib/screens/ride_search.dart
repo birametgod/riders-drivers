@@ -14,6 +14,7 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_map_polyline/google_map_polyline.dart';
 import 'package:selectable_container/selectable_container.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 
 class RideSearch extends StatefulWidget {
   @override
@@ -78,7 +79,8 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
   String  ride_type;
   String statut;
   final ride = FirebaseFirestore.instance.collection('ride');
-  void _onPressed() {
+
+  void _addRide() {
     ride.add(
         {
           "address_end_point" : _whereController.text,
@@ -136,7 +138,6 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
   }
 
   //add current location in collection rider
-
 
   @override
   void initState() {
@@ -320,21 +321,6 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
     return byteData.buffer.asUint8List();
   }
 
-  // Default value for toggle
-  bool toggle = false;
-
-  Widget waiting(){
-    return Column(
-      children: [
-        CircularProgressIndicator(
-          backgroundColor: Colors.brown,
-          valueColor: new AlwaysStoppedAnimation<Color>(Colors.black),
-        ),
-        Text('Merci de patienter...', style: TextStyle(fontWeight: FontWeight.bold),)
-      ],
-    );
-  }
-
   Widget driverInfo(){
     return Container(
       margin: EdgeInsets.fromLTRB(15, 0, 15, 0),
@@ -381,190 +367,142 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
     );
   }
 
-  _getToggleChild() {
-    setState(() {
-      if (toggle) {
-        return Column(
-          children: [
-            CircularProgressIndicator(
-              backgroundColor: Colors.brown,
-              valueColor: new AlwaysStoppedAnimation<Color>(Colors.black),
-            ),
-            Text('Merci de patienter...', style: TextStyle(fontWeight: FontWeight.bold),)
-          ],
-        );
-      } else {
-        return Container(
-          margin: EdgeInsets.fromLTRB(15, 0, 15, 0),
-          height: 100,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            color: Colors.orangeAccent,
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 60,
-                height: 60,
-                margin: EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                      image: NetworkImage('https://googleflutter.com/sample_image.jpg'),
-                      fit: BoxFit.fill
-                  ),
-                ),
-              ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(driver, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
-                  SizedBox(height: 5),
-                  Text('Level', style: TextStyle(fontSize: 15),)
-                ],
-              ),
-              SizedBox(width: 50,),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text('Peugeot 3008', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
-                  SizedBox(height: 5),
-                  Text('DK-262-SD', style: TextStyle(fontSize: 15),)
-                ],
-              ),
-            ],
-          ),
-        );
-      }
-    });
-
-  }
-
-
-
-  void displayBottomSheet(BuildContext context) {
+  void showBottomsheet(BuildContext context){
     showModalBottomSheet(
         context: context,
-        builder: (ctx) {
-          return Container(
-            height: MediaQuery.of(context).size.height  * 0.4,
-            child: Column(
-              children: [
-                SizedBox(height: 30.0,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 150,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.brown),
-                        borderRadius: BorderRadius.circular(20),
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.brown,
-                            offset: Offset(2.0, 3.0), //(x,y)
-                            blurRadius: 6.0,
+        builder: (context) {
+          return StatefulBuilder(
+              builder: (BuildContext context, StateSetter bottomState ) {
+                return Container(
+                  height: MediaQuery.of(context).size.height  * 0.4,
+                  child: Column(
+                    children: [
+                      SizedBox(height: 30.0,),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 150,
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.brown),
+                              borderRadius: BorderRadius.circular(20),
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.brown,
+                                  offset: Offset(2.0, 3.0), //(x,y)
+                                  blurRadius: 6.0,
+                                ),
+                              ],
+                            ),
+                            //margin: const EdgeInsets.all(30.0),
+                            padding: const EdgeInsets.all(20.0),
+                            child: Column(
+                              children: [
+                                Text('DISTANCE', style: TextStyle(fontWeight: FontWeight.bold),),
+                                Text('$_placeDistance KM')
+                              ],
+                            ),
+                          ),
+                          SizedBox(width: 50.0,),
+                          Container(
+                            width: 150,
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.brown),
+                              borderRadius: BorderRadius.circular(20),
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.brown,
+                                  offset: Offset(2.0, 3.0), //(x,y)
+                                  blurRadius: 6.0,
+                                ),
+                              ],
+                            ),
+                            //margin: const EdgeInsets.all(30.0),
+                            padding: const EdgeInsets.all(20.0),
+                            child: Column(
+                              children: [
+                                Text('PRICE', style: TextStyle(fontWeight: FontWeight.bold),),
+                                Text('$_price FCFA')
+                              ],
+                            ),
                           ),
                         ],
                       ),
-                      //margin: const EdgeInsets.all(30.0),
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
+                      SizedBox(height: 30.0,),
+                      driverInfo(),
+                      //TO-DO: change above with driver's information
+                      SizedBox(height: 30.0),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text('DISTANCE', style: TextStyle(fontWeight: FontWeight.bold),),
-                          Text('$_placeDistance KM')
-                        ],
-                      ),
-                    ),
-                    SizedBox(width: 50.0,),
-                    Container(
-                      width: 150,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.brown),
-                        borderRadius: BorderRadius.circular(20),
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.brown,
-                            offset: Offset(2.0, 3.0), //(x,y)
-                            blurRadius: 6.0,
-                          ),
-                        ],
-                      ),
-                      //margin: const EdgeInsets.all(30.0),
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        children: [
-                          Text('PRICE', style: TextStyle(fontWeight: FontWeight.bold),),
-                          Text('$_price FCFA')
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 30.0,),
-                Container(child: toggle ? driverInfo() : waiting()),
-                //TO-DO: change above with driver's information
-                SizedBox(height: 30.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(
-                      child: Text('PAYER'),
-                      style: ElevatedButton.styleFrom(
-                        primary: Colors.brown,
-                        onPrimary: Colors.white,
-                        elevation: 4.0,
-                        padding: EdgeInsets.all(15),
-                        side: BorderSide(style: BorderStyle.solid, width: 4.0, color: Colors.white),
-                        textStyle: TextStyle(
-                            fontSize: 20,
-                            fontStyle: FontStyle.normal
-                        ),
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          if (toggle) {
-                            toggle = false;
-                          } else {
-                            toggle = true;
-                          }
-                        });
+                          ElevatedButton(
+                            child: Text('PAYER'),
+                            style: ElevatedButton.styleFrom(
+                              primary: Colors.brown,
+                              onPrimary: Colors.white,
+                              elevation: 4.0,
+                              padding: EdgeInsets.all(15),
+                              side: BorderSide(style: BorderStyle.solid, width: 4.0, color: Colors.white),
+                              textStyle: TextStyle(
+                                  fontSize: 20,
+                                  fontStyle: FontStyle.normal
+                              ),
+                            ),
+                            onPressed: () {
+                              //_payement();
 
-                      },
-                    ),
-                    SizedBox(width: 70.0,),
-                    ElevatedButton(
-                      child: Text('Annuler'),
-                      style: ElevatedButton.styleFrom(
-                        primary: Colors.brown,
-                        onPrimary: Colors.white,
-                        elevation: 4.0,
-                        padding: EdgeInsets.all(15),
-                        side: BorderSide(style: BorderStyle.solid, width: 4.0, color: Colors.white),
-                        textStyle: TextStyle(
-                            fontSize: 20,
-                            fontStyle: FontStyle.normal
-                        ),
-                      ),
-                      onPressed: () {
-                        _deleteRide();
-                      },
-                    ),
-                  ],
-                )
-              ],
-            ),
-          );
+                            },
+                          ),
+                          SizedBox(width: 70.0,),
+                          ElevatedButton(
+                            child: Text('Annuler'),
+                            style: ElevatedButton.styleFrom(
+                              primary: Colors.brown,
+                              onPrimary: Colors.white,
+                              elevation: 4.0,
+                              padding: EdgeInsets.all(15),
+                              side: BorderSide(style: BorderStyle.solid, width: 4.0, color: Colors.white),
+                              textStyle: TextStyle(
+                                  fontSize: 20,
+                                  fontStyle: FontStyle.normal
+                              ),
+                            ),
+                            onPressed: () {
+                              //_deleteRide();
+                            },
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                );
+              });
         });
   }
+
+  ProgressDialog pr;
+
 
 
   @override
   Widget build(BuildContext context) {
+    pr = new ProgressDialog(context);
+    pr.style(
+        message: 'Please Waiting...',
+        borderRadius: 10.0,
+        backgroundColor: Colors.white,
+        progressWidget: CircularProgressIndicator(),
+        elevation: 10.0,
+        insetAnimCurve: Curves.easeInOut,
+        progress: 0.0,
+        maxProgress: 100.0,
+        progressTextStyle: TextStyle(
+            color: Colors.black, fontSize: 13.0, fontWeight: FontWeight.w400),
+        messageTextStyle: TextStyle(
+            color: Colors.black, fontSize: 19.0, fontWeight: FontWeight.w600)
+    );
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
@@ -803,8 +741,21 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
                   ),
                 ),
                 onPressed: () {
-                  displayBottomSheet(context);
-                  _onPressed();
+                  pr.show();
+                  Future.delayed(Duration(seconds: 15)).then((value) {
+                    pr.hide().whenComplete(() {
+                      //wait till a driver accept then retrieve driver information
+                      showBottomsheet(context);
+                      //if any driver accept tell him to retry later
+                    });
+                  });
+                  //_addRide();
+                  //String rideId = 'l417LqutFOhDMm4SxeK5';
+                  //Navigator.pushNamed(
+                    //context,
+                    //'/details/$rideId',
+                  //);
+
                 },
               ),
             ),
@@ -815,5 +766,13 @@ class _RideSearchState extends State<RideSearch> with SingleTickerProviderStateM
   }
 }
 
+//wrap search box and button request a ride with visibility
+//https://www.woolha.com/tutorials/flutter-hide-show-widget-using-visibility
+//update driver location and rebuild polygone smoothly
+
+
+
 //https://www.google.com/search?q=taxi+driver+homepage+flutter&client=firefox-b-d&sxsrf=ALeKk02SBadtIBn35btvSLGIV2eIYHMXMQ:1611175691954&source=lnms&tbm=isch&sa=X&ved=2ahUKEwjGgaiWsavuAhXJ3oUKHeczDnEQ_AUoAXoECAUQAw&biw=1280&bih=703#imgrc=cMcjclmdFGQfTM
 //https://code.market/product/flutter-taxi-app-driver-ui-kit/
+//https://medium.com/flutter/learning-flutters-new-navigation-and-routing-system-7c9068155ade
+//https://www.codegrepper.com/code-examples/whatever/set+state+of+bottomsheet+flutter

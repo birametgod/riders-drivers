@@ -1,12 +1,29 @@
 import 'package:flutter/material.dart';
 import 'ride_search.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'ride_info.dart';
+import 'ride_accept.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(MaterialApp(
-    home: RideSearch(),
+    onGenerateRoute: (settings) {
+      // Handle '/'
+      if (settings.name == '/') {
+        return MaterialPageRoute(builder: (context) => RideAccept());
+      }
+
+      // Handle '/details/:id'
+      var uri = Uri.parse(settings.name);
+      if (uri.pathSegments.length == 2 &&
+          uri.pathSegments.first == 'details') {
+        var id = uri.pathSegments[1];
+        return MaterialPageRoute(builder: (context) => DetailScreen(id: id));
+      }
+
+      return MaterialPageRoute(builder: (context) => UnknownScreen());
+    },
   ));
 }
 

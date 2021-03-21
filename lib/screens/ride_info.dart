@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-//implement info page like uber eat cf screen on phone
+//import ride wait -->implement info page like uber eat cf screen on phone
 
 class DetailScreen extends StatefulWidget {
 

@@ -1,117 +1,249 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:ridersdrivers_app/constants.dart';
-import 'package:ridersdrivers_app/widgets/google_font_one.dart';
-import 'package:ridersdrivers_app/widgets/text_fitted_box.dart';
+import 'package:ridersdrivers_app/screens/home_screen.dart';
+import 'package:ridersdrivers_app/screens/identication_screen.dart';
+import 'package:ridersdrivers_app/screens/splash_screen.dart';
+import 'package:ridersdrivers_app/screens/connexion_screen.dart';
+import 'package:ridersdrivers_app/services/authentication.dart';
+import 'package:ridersdrivers_app/services/user.dart';
 
-class VerifyScreen extends StatefulWidget {
+class VerifyScreenSecond extends StatefulWidget {
+  final String verificationId;
+  final String numberPhone;
+
+  VerifyScreenSecond(
+      {@required this.verificationId, @required this.numberPhone});
+
   @override
-  _VerifyScreenState createState() => _VerifyScreenState();
+  _VerifyScreenSecondState createState() => _VerifyScreenSecondState();
 }
 
-class _VerifyScreenState extends State<VerifyScreen> {
+class _VerifyScreenSecondState extends State<VerifyScreenSecond> {
+  TextEditingController controller = TextEditingController();
+  String errorText = "Vous n'avez pas reçu ce code";
+  bool isVisible = false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: gradientFirst,
-        elevation: 0,
-        leading:  IconButton(
-          icon:  Icon(
-              Icons.arrow_back,
-              size: 20.0,
+        backgroundColor: Color(0xFFE7E7E7),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          brightness: Brightness.light, // status bar brightness
+          leading: IconButton(
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  PageTransition(
+                      child: ConnexionScreen(),
+                      type: PageTransitionType.leftToRight));
+            },
+            icon: Icon(
+              Icons.arrow_back_ios,
+              color: Color(0xFFF2BB00),
+            ),
           ),
-          onPressed: () {},
+          title: Text(
+            'Confirmation',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                color: Colors.black,
+                fontSize: 20.0,
+                fontWeight: FontWeight.w400),
+          ),
         ),
-      ),
-      body: Container(
-        decoration: homeBodyDecoration,
-        child: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.all(20.0),
+        body: SafeArea(
+          child: Container(
+            padding: EdgeInsets.only(
+                top: 50.0, left: 20.0, right: 20.0, bottom: 20.0),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
-                  child: Column(
-                    children: [
-                      Align(
-                        alignment: Alignment.center,
-                        child: TextFittedBox(
-                          text: GoogleFontOne(
-                            size: 20.0,
-                            textValue: "Enter verification code",
-                            //spacing: 1.0,
-                            weight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      Center(
-                        child: TextFittedBox(
-                          text: GoogleFontOne(
-                            size: 12.0,
-                            textValue: " A code has been sent to +33752516199 via sms ",
-                            spacing: 1.0,
-                            weight: FontWeight.w500,
-                            height: 2.0,
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 40.0,
-                      ),
-                      PinCodeTextField(
-                          animationType: AnimationType.fade,
-                          backgroundColor: Colors.transparent,
-                          keyboardType: TextInputType.number,
-                          enableActiveFill: true,
-                          obscureText: true,
-                          appContext: context,
-                          length: 6,
-                          textStyle: TextStyle(
-                            color: gradientFourth
-                          ),
-                          pinTheme: PinTheme(
-                              shape: PinCodeFieldShape.box,
-                              borderRadius: BorderRadius.circular(5.0),
-                              inactiveFillColor: gradientZero,
-                              inactiveColor: gradientZero,
-                              selectedFillColor: gradientZero,
-                              selectedColor: gradientThird,
-                              activeFillColor: gradientZero,
-                              activeColor: gradientZero,
-                              borderWidth: 1.0
-                          ),
-                          onChanged: null
-                      ),
-                    ],
+                Text(
+                  'Saisissez le code 6 chiffres reçus',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 20.0,
                   ),
                 ),
+                isVisible
+                    ? Text(
+                        errorText,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 20.0,
+                            color: Color(0xFF273553)),
+                      )
+                    : RichText(
+                        textAlign: TextAlign.center,
+                        text: TextSpan(
+                          children: <TextSpan>[
+                            TextSpan(
+                              text: "Nous avons envoyé un code par SMS au \n",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 20.0,
+                                  color: Colors.grey[700]),
+                            ),
+                            TextSpan(
+                              text: "${widget.numberPhone}",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 20.0,
+                                  color: Color(0xFF273553)),
+                            )
+                          ],
+                        ),
+                      ),
                 Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: 50.0,
-                  padding: EdgeInsets.symmetric(
-                      horizontal: 30, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: gradientSecond,
-                    borderRadius:
-                    BorderRadius.all(Radius.circular(10.0)),
-                  ),
-                  child: FittedBox(
-                    child: GoogleFontOne(
-                      size: 10.0,
-                      textValue: 'Confirmer',
+                  padding: EdgeInsets.only(left: 30.0, right: 30.0),
+                  child: PinCodeTextField(
+                    animationType: AnimationType.slide,
+                    backgroundColor: Colors.transparent,
+                    keyboardType: TextInputType.number,
+                    obscureText: true,
+                    controller: controller,
+                    appContext: context,
+                    length: 6,
+                    keyboardAppearance: Brightness.dark,
+                    textStyle: TextStyle(color: Colors.black),
+                    pinTheme: PinTheme(
+                      shape: PinCodeFieldShape.underline,
+                      borderRadius: BorderRadius.circular(5.0),
+                      inactiveColor: Colors.black,
+                      selectedColor: Colors.grey,
+                      activeColor: Colors.black,
+                      borderWidth: 1.0,
                     ),
+                    onChanged: null,
                   ),
-                )
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(
+                        children: <TextSpan>[
+                          TextSpan(
+                            text: "Vous n'avez pas reçu le code ?\n",
+                            style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 15.0,
+                                color: Colors.grey[700]),
+                          ),
+                          TextSpan(
+                            text: "Cliquez ici",
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () =>
+                                  {signInPhone(widget.numberPhone, context)},
+                            style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 15.0,
+                                color: Color(0xFF273553)),
+                          )
+                        ],
+                      ),
+                    ),
+                    Ink(
+                        width: 65.0,
+                        decoration: ShapeDecoration(
+                          color: Color(0xFFF2BB00),
+                          shape: RoundedRectangleBorder(
+                              side: BorderSide(
+                                  width: 2.0, color: Color(0xFF464F63)),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(15.0))),
+                        ),
+                        child: IconButton(
+                            icon: Icon(
+                              Icons.arrow_forward,
+                              color: Color(0xFF464F63),
+                              size: 35.0,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                isVisible = false;
+                              });
+                              FirebaseAuth auth = FirebaseAuth.instance;
+                              //update UI - wait for user enter sms text code
+                              String smsCode = controller.text.trim();
+                              // create a phoneAuthCredential with the code
+                              PhoneAuthCredential phoneAuthCredential =
+                                  PhoneAuthProvider.credential(
+                                      verificationId: widget.verificationId,
+                                      smsCode: smsCode);
+                              // sign in with credential
+                              auth
+                                  .signInWithCredential(phoneAuthCredential)
+                                  .then((result) async {
+                                FirebaseFirestore.instance
+                                    .collection("users")
+                                    .doc(result.user.uid)
+                                    .get()
+                                    .then((DocumentSnapshot documentSnapshot) =>
+                                        {
+                                          if (documentSnapshot.exists)
+                                            {
+                                              Navigator.of(context)
+                                                  .pushAndRemoveUntil(
+                                                      PageTransition(
+                                                          child: HomeScreen(),
+                                                          type:
+                                                              PageTransitionType
+                                                                  .rightToLeft),
+                                                      (route) => false)
+                                            }
+                                          else
+                                            {
+                                              // add user
+                                              Navigator.of(context).push(
+                                                PageTransition(
+                                                    child: IdenticationScreen(
+                                                      user: result.user,
+                                                      isConnectingWithPhoneNumber:
+                                                          true,
+                                                    ),
+                                                    type: PageTransitionType
+                                                        .rightToLeft),
+                                              )
+                                            }
+                                        });
+                              }).catchError((e) {
+                                print(e.toString().split("]")[1]);
+                                String error = e.toString().split("]")[1];
+                                setState(() {
+                                  isVisible = true;
+                                  errorText = error;
+                                });
+                              });
+                            }))
+                  ],
+                ),
               ],
             ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 }

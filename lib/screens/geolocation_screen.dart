@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ridersdrivers_app/widgets/card_info.dart';
+
 
 class GeolocationScreen extends StatefulWidget {
   @override
@@ -7,8 +10,17 @@ class GeolocationScreen extends StatefulWidget {
 }
 
 class _GeolocationScreenState extends State<GeolocationScreen> {
+
+  Future <DocumentReference>addUserInside(User user, BuildContext context) {
+    CollectionReference users = FirebaseFirestore.instance.collection('users');
+    return users
+    //iu.doc(user.uid)
+        .add({"name": user.displayName, "email": user.email});
+  }
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
         backgroundColor: Color(0xFFE7E7E7),
         appBar: AppBar(
